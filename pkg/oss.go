@@ -12,7 +12,7 @@ const (
 	imgUrl          = "https://xuanwu-nft.oss-cn-beijing.aliyuncs.com"
 	endpoint        = "http://oss-cn-beijing.aliyuncs.com"
 	accessKeyID     = "LTAI5tLvK7ZSuCXHDKQAJZWp"
-	accessKeySecret = "XFX63hmUufFXKLUqydk3vJaT9p4oqc"
+	accessKeySecret = ""
 	bucketName      = "xuanwu-nft"
 	//fileFolder      = "img"
 )
