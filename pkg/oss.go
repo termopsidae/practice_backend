@@ -11,7 +11,7 @@ import (
 const (
 	imgUrl          = "https://xuanwu-nft.oss-cn-beijing.aliyuncs.com"
 	endpoint        = "http://oss-cn-beijing.aliyuncs.com"
-	accessKeyID     = "LTAI5tLvK7ZSuCXHDKQAJZWp"
+	accessKeyID     = ""
 	accessKeySecret = ""
 	bucketName      = "xuanwu-nft"
 	//fileFolder      = "img"
