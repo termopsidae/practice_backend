@@ -1,0 +1,7 @@
+# Logs
+go.sum
+.env.sample
+.idea
+output.txt
+
+/vendor/
