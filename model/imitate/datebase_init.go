@@ -23,3 +23,17 @@ func insertImitateManager(tx *gorm.DB) error {
 
 	return nil
 }
+func insertImitateGoods(tx *gorm.DB) error {
+	good := model.Good{
+		Name:        "test",
+		Price:       100,
+		Description: "test",
+		LastAmount:  100,
+		Flag:        "1",
+	}
+	_, err := good.InsertNewGood(tx)
+	if err != nil {
+		return err
+	}
+	return nil
+}

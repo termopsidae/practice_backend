@@ -18,6 +18,9 @@ func ConnectDB() {
 	allModels := []interface{}{
 		&model.User{},
 		&model.Manager{},
+		&model.Good{},
+		&model.GoodOrder{},
+		&model.Cart{},
 	}
 	var err error
 	p := config.Config("DB_PORT")

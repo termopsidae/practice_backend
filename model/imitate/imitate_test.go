@@ -18,3 +18,14 @@ func TestDataBase(t *testing.T) {
 	}
 	fmt.Println("----------------------------------------------------")
 }
+func TestInsert(t *testing.T) {
+	database.ConnectDB()
+	err := insertImitateGoods(database.DB)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = insertImitateManager(database.DB)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
