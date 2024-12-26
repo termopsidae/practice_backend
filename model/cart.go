@@ -9,7 +9,7 @@ type Cart struct {
 	gorm.Model
 	UserId          uint
 	User            User
-	GoodOrderIdList []uint
+	GoodOrderIdList string
 	TotalPrice      float64
 	Flag            string
 }

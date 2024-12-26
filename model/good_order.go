@@ -11,7 +11,6 @@ type GoodOrder struct {
 	GoodId     uint
 	Good       Good
 	CartId     uint
-	Cart       Cart
 	Amount     int64
 	TotalPrice float64
 	Flag       string // 启用标志(0-取消 1-待付款 2-已付款)
