@@ -27,3 +27,18 @@ func (g *Good) InsertNewGood(db *gorm.DB) (id uint, err error) {
 		return g.ID, nil
 	}
 }
+
+// SelectAllGoods 查询所有
+func SelectAllGoods(db *gorm.DB, flag string) (us []Good, err error) {
+	tx := db.Model(&Good{})
+	if flag != "1" {
+		if err := tx.Where("flag = ?", "0").Order("created_at desc").Find(&us).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		if err := tx.Where("flag = ?", flag).Order("created_at desc").Find(&us).Error; err != nil {
+			return nil, err
+		}
+	}
+	return us, nil
+}

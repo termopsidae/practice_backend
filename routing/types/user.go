@@ -58,3 +58,18 @@ type SengMsg struct {
 	Phone string `json:"phone"`
 	Area  string `json:"area"`
 }
+
+// 查询所有商品列表接口
+type SelectAllGoodsReq struct {
+}
+type SelectAllGoodsResp struct {
+	Goods []GoodInfo `json:"goods"`
+}
+type GoodInfo struct {
+	GoodId      uint    `json:"good_id"`
+	Name        string  `json:"name"`
+	Price       float64 `json:"price"`
+	Description string  `json:"description"`
+	LastAmount  int64   `json:"last_amount"`
+	Flag        string  `json:"flag"` // 启用标志(0-停用 1-可购买) `json:"goods"`
+}

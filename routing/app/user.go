@@ -89,6 +89,34 @@ func RegisterAndLogin(c *fiber.Ctx) error {
 	return c.JSON(pkg.SuccessResponse(data))
 }
 
+// SelectAllGoods 查询所有商品接口
+func SelectAllGoods(c *fiber.Ctx) error {
+	data := types.SelectAllGoodsResp{}
+	//err = database.DB.Transaction(func(tx *gorm.DB) error {
+	//
+	//})
+	//查询数据,不需要包裹数据库事物
+	list := make([]types.GoodInfo, 0)
+	goods, err := model.SelectAllGoods(database.DB, "1")
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
+	} else {
+		for _, g := range goods {
+			in := types.GoodInfo{
+				GoodId:      g.ID,
+				Name:        g.Name,
+				Price:       g.Price,
+				Description: g.Description,
+				LastAmount:  g.LastAmount,
+				Flag:        g.Flag,
+			}
+			list = append(list, in)
+		}
+	}
+	data.Goods = list
+	return c.JSON(pkg.SuccessResponse(data))
+}
+
 // 解签名
 func ecRecover(sighash []byte, sig []byte) (common.Address, error) {
 	if len(sig) < 64 {

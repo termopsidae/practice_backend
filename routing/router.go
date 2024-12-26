@@ -16,6 +16,8 @@ func Setup(f *fiber.App) {
 func AppSetUp(api fiber.Router) {
 	// registerAndLogin 登录注册
 	api.Post("/registerAndLogin", app.RegisterAndLogin)
+	//selectAllGoods 查询所有商品接口
+	api.Post("/selectAllGoods", app.SelectAllGoods)
 
 }
 func ManageSetUp(api fiber.Router) {
