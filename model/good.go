@@ -23,6 +23,7 @@ func (g *Good) InsertNewGood(db *gorm.DB) (id uint, err error) {
 	result := db.Create(g)
 	if result.Error != nil {
 		return 0, result.Error
+
 	} else {
 		return g.ID, nil
 	}
@@ -41,4 +42,11 @@ func SelectAllGoods(db *gorm.DB, flag string) (us []Good, err error) {
 		}
 	}
 	return us, nil
+}
+
+//查询商品通过 goodId
+
+func SelectGoodById(db *gorm.DB, id uint) (good Good, err error) {
+	err = db.Model(&good).Where("id = ?", id).First(&good).Error
+	return
 }

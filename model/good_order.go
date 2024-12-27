@@ -27,3 +27,14 @@ func SelectAllGoodOrder(db *gorm.DB, flag string) (pos []GoodOrder, err error) {
 	}
 	return pos, nil
 }
+
+// 插入订单数据
+// InsertNewUser 新增订单
+func (goodOrder *GoodOrder) InsertNewGoodOrder(db *gorm.DB) (id uint, err error) {
+	result := db.Create(goodOrder)
+	if result.Error != nil {
+		return 0, result.Error
+	} else {
+		return goodOrder.ID, nil
+	}
+}
