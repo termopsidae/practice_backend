@@ -16,8 +16,18 @@ func Setup(f *fiber.App) {
 func AppSetUp(api fiber.Router) {
 	// registerAndLogin 登录注册
 	api.Post("/registerAndLogin", app.RegisterAndLogin)
+
 	//selectAllGoods 查询所有商品接口
 	api.Post("/selectAllGoods", app.SelectAllGoods)
+
+	//purchaseGood 商品加入购物车 TODO
+	api.Post("/purchaseGood", intcpt.AuthApp(), app.SelectAllGoods)
+
+	//selectCartInfo 查询购物车 TODO 仅查询待付款
+	api.Post("/selectCartInfo", intcpt.AuthApp(), app.SelectAllGoods)
+
+	//updateGoodOrder 商品订单修改 TODO
+	api.Post("/updateGoodOrder", intcpt.AuthApp(), app.SelectAllGoods)
 
 }
 func ManageSetUp(api fiber.Router) {
