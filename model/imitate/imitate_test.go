@@ -20,17 +20,4 @@ func TestDataBase(t *testing.T) {
 }
 func TestInsert(t *testing.T) {
 	InitDataBase()
-	database.ConnectDB()
-	err := insertImitateGoods(database.DB)
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = insertImitateManager(database.DB)
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = insertImitateUser(database.DB)
-	if err != nil {
-		fmt.Println(err)
-	}
 }

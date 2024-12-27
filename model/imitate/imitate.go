@@ -65,7 +65,14 @@ func InitDataBase() {
 		if err != nil {
 			return err
 		}
-
+		err = insertImitateUser(tx)
+		if err != nil {
+			return err
+		}
+		err = insertImitateGood(tx)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 	if err != nil {
