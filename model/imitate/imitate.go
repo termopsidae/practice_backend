@@ -18,6 +18,7 @@ func InitDataBase() {
 	allModels := []interface{}{
 		&model.User{},
 		&model.Manager{},
+		&model.Good{},
 	}
 	var err error
 	p := config.Config("DB_PORT")
@@ -44,7 +45,7 @@ func InitDataBase() {
 		panic("failed to connect database")
 	}
 	//删表
-	var tableList = []string{"currencies", "managers", "mining", "key_values"}
+	var tableList = []string{"goods", "managers", "users"}
 	err = dropExistsTable(tableList)
 	if err != nil {
 		log.Fatal(err)
