@@ -191,11 +191,6 @@ func PurchaseGood(c *fiber.Ctx) error {
 	}
 
 	transactionErr := database.DB.Transaction(func(tx *gorm.DB) error {
-		//订单加入购物车
-		_, err := cart.InsertCart(tx)
-		if err != nil {
-			return err
-		}
 		//更新购物车
 		params := map[string]interface{}{
 			"total_price":        cart.TotalPrice + goodOrder.TotalPrice,

@@ -39,7 +39,7 @@ func insertImitateGood(tx *gorm.DB) error {
 }
 
 func insertImitateUser(tx *gorm.DB) error {
-	returnT := pkg.RandomString(64) //+ ":" + strconv.FormatInt(time.Now().Unix(), 10)
+	returnT := pkg.RandomString(64) + ":" + strconv.FormatInt(time.Now().Unix(), 10)
 	user := model.User{
 		RecommendId:   0,
 		WalletAddress: pkg.Upper("0xD94765D06ca3ABb07538B0967E10629153C74d10"),
