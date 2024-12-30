@@ -38,3 +38,14 @@ func (goodOrder *GoodOrder) InsertNewGoodOrder(db *gorm.DB) (id uint, err error)
 		return goodOrder.ID, nil
 	}
 }
+
+// 查询订单，通过ID ，和购买状态
+func SelectOrderByIdAndFlag(db *gorm.DB, ids []uint, flag string) (goodOrders []GoodOrder, err error) {
+	tx := db.Model(&GoodOrder{})
+	if flag != "" { //查询当前IDs ，未付款订单
+		err = tx.Where("id IN (?)", ids).Where("flag = ?", flag).Find(&goodOrders).Error
+	} else { //查询当前IDs所有订单
+		err = tx.Where("id IN (?)", ids).Find(&goodOrders).Error
+	}
+	return goodOrders, err
+}

@@ -24,7 +24,7 @@ func AppSetUp(api fiber.Router) {
 	api.Post("/purchaseGood", intcpt.AuthApp(), app.PurchaseGood)
 
 	//selectCartInfo 查询购物车 TODO 仅查询待付款
-	api.Post("/selectCartInfo", intcpt.AuthApp(), app.SelectAllGoods)
+	api.Post("/selectCartInfo", intcpt.AuthApp(), app.SelectCartInfo)
 
 	//updateGoodOrder 商品订单修改 TODO
 	api.Post("/updateGoodOrder", intcpt.AuthApp(), app.SelectAllGoods)

@@ -209,6 +209,84 @@ func PurchaseGood(c *fiber.Ctx) error {
 	return c.JSON(pkg.SuccessResponse(responseData))
 }
 
+// SelectCartInfo 查询购物车,仅仅查询待付款
+func SelectCartInfo(c *fiber.Ctx) error {
+	//reqParams := types.SelectCartInfoReq{}
+	//err := c.BodyParser(&reqParams)
+	//if err != nil {
+	//	return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "passer error", config.MESSAGE_PARSER_ERROR))
+	//}
+	currentUser := c.Locals(config.LOCAL_USERID_STRUCT).(model.User)
+	//查询出当前用户的购物车
+	cart, err := model.SelectCartByUserId(database.DB, currentUser.ID)
+	if err != nil { //没有购物车 为当前用户插入购物车
+		if strings.Contains(err.Error(), "record not found") { //查询购物车无记录条件
+			//此时我们应为当前用户创建个购物车并插入数据库
+			cart := model.Cart{
+				UserId:          currentUser.ID,
+				User:            currentUser,
+				GoodOrderIdList: "[]",
+				TotalPrice:      0.0,
+				Flag:            "1",
+			}
+			transactionErr := database.DB.Transaction(func(tx *gorm.DB) error {
+				cartId, err := cart.InsertCart(tx)
+				if err != nil {
+					return err
+				}
+				cart.ID = cartId
+				return nil
+			})
+			if transactionErr != nil { //如果插入失败，就报服务异常
+				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, transactionErr.Error(), config.MESSAGE_TRANSACTION_ERROR))
+			}
+		} else { //查询购物车记录错误
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
+		}
+	}
+	goodOrderIdList := make([]uint, 0)
+	err = json.Unmarshal([]byte(cart.GoodOrderIdList), &goodOrderIdList)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
+	}
+	//查询数据库中购物车中所有还没购买的商品
+	goodOrderList, err := model.SelectOrderByIdAndFlag(database.DB, goodOrderIdList, "1")
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
+	}
+	goodOrderInfoList := make([]types.GoodOrderInfo, 0)
+	//将从数据库查询出来的购物车订单数据复制给 types 中 GoodOrderInfo 类
+	for _, goodOrder := range goodOrderList {
+		//通过当前订单的商品Id 查询出商品详情
+		good, err := model.SelectGoodById(database.DB, goodOrder.GoodId)
+		if err != nil {
+			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
+		}
+		goodOrderInfo := types.GoodOrderInfo{
+			GoodOrderId: goodOrder.ID,
+			Good: types.GoodInfo{
+				GoodId:      goodOrder.GoodId,
+				Name:        good.Name,
+				Price:       good.Price,
+				Description: good.Description,
+				LastAmount:  good.LastAmount,
+				Flag:        good.Flag,
+			},
+			Amount:     goodOrder.Amount,
+			TotalPrice: goodOrder.TotalPrice,
+		}
+		goodOrderInfoList = append(goodOrderInfoList, goodOrderInfo)
+	}
+	//开始组装返回结果数据
+	resPonseData := types.SelectCartInfoResp{
+		CartId:        cart.ID,
+		TotalPrice:    cart.TotalPrice,
+		GoodOrderList: goodOrderInfoList,
+	}
+	//数据组装成功,以成功格式返回
+	return c.JSON(pkg.SuccessResponse(resPonseData))
+}
+
 // 解签名
 func ecRecover(sighash []byte, sig []byte) (common.Address, error) {
 	if len(sig) < 64 {
