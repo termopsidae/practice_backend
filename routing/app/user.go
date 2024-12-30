@@ -127,8 +127,7 @@ func PurchaseGood(c *fiber.Ctx) error {
 	}
 	//通过 good id ，amount数量 创建 订单
 
-	currentUser := model.User{}
-	c.Locals(config.LOCAL_USERID_STRUCT, &currentUser)
+	currentUser := c.Locals(config.LOCAL_USERID_STRUCT).(model.User)
 
 	//3，通过用户id 反查 匹配的购物车
 	cart, err := model.SelectCartByUserId(database.DB, currentUser.ID)
