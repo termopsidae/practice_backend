@@ -289,7 +289,7 @@ func SelectCartInfo(c *fiber.Ctx) error {
 	return c.JSON(pkg.SuccessResponse(resPonseData))
 }
 
-// updateGoodOrder 更新购物车接口
+// UpdateGoodOrder 更新购物车接口
 func UpdateGoodOrder(c *fiber.Ctx) error {
 	reqParams := types.UpdateGoodOrderReq{}
 	err := c.BodyParser(&reqParams)
@@ -297,32 +297,47 @@ func UpdateGoodOrder(c *fiber.Ctx) error {
 		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_PARSER_ERROR))
 	}
 	currentUser := c.Locals(config.LOCAL_USERID_STRUCT).(model.User)
-	//通过当前用户,查询购物车, 没有就创建购物车
+	////通过当前用户,查询购物车, 没有就创建购物车
+	//cart, err := model.SelectCartByUserId(database.DB, currentUser.ID)
+	//if err != nil { //没有购物车 为当前用户插入购物车
+	//	if strings.Contains(err.Error(), "record not found") { //查询购物车无记录条件
+	//		//此时我们应为当前用户创建个购物车并插入数据库
+	//		cart := model.Cart{
+	//			UserId:          currentUser.ID,
+	//			User:            currentUser,
+	//			GoodOrderIdList: "[]",
+	//			TotalPrice:      0.0,
+	//			Flag:            "1",
+	//		}
+	//		transactionErr := database.DB.Transaction(func(tx *gorm.DB) error {
+	//			cartId, err := cart.InsertCart(tx)
+	//			if err != nil {
+	//				return err
+	//			}
+	//			cart.ID = cartId
+	//			return nil
+	//		})
+	//		if transactionErr != nil { //如果插入失败，就报服务异常
+	//			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, transactionErr.Error(), config.MESSAGE_TRANSACTION_ERROR))
+	//		}
+	//	} else { //查询购物车记录错误
+	//		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
+	//	}
+	//}
+	//检验当前用户绑定的购物车和本订单绑定的购物车是否相同
+	//查询购物车 没有购物车直接报错
 	cart, err := model.SelectCartByUserId(database.DB, currentUser.ID)
-	if err != nil { //没有购物车 为当前用户插入购物车
-		if strings.Contains(err.Error(), "record not found") { //查询购物车无记录条件
-			//此时我们应为当前用户创建个购物车并插入数据库
-			cart := model.Cart{
-				UserId:          currentUser.ID,
-				User:            currentUser,
-				GoodOrderIdList: "[]",
-				TotalPrice:      0.0,
-				Flag:            "1",
-			}
-			transactionErr := database.DB.Transaction(func(tx *gorm.DB) error {
-				cartId, err := cart.InsertCart(tx)
-				if err != nil {
-					return err
-				}
-				cart.ID = cartId
-				return nil
-			})
-			if transactionErr != nil { //如果插入失败，就报服务异常
-				return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, transactionErr.Error(), config.MESSAGE_TRANSACTION_ERROR))
-			}
-		} else { //查询购物车记录错误
-			return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
-		}
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
+	}
+	goodOrder := model.GoodOrder{}
+	goodOrder.ID = reqParams.GoodOrderId
+	err = goodOrder.GetById(database.DB)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, err.Error(), config.MESSAGE_TRANSACTION_ERROR))
+	}
+	if cart.ID != goodOrder.CartId {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "wrong good order id", config.MESSAGE_TRANSACTION_ERROR))
 	}
 	//获得当前购物车里的订单Id
 	goodOrderIdList := make([]uint, 0)
@@ -337,15 +352,15 @@ func UpdateGoodOrder(c *fiber.Ctx) error {
 	}
 	//判断用户要修改的订单Id 是否非法
 	changeOrderId := reqParams.GoodOrderId
-	if goodOrderIdsMap[changeOrderId] { //此时修改的订单Id 数据非法
-		c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "data invalid", "订单id数据非法"))
+	if goodOrderIdsMap[changeOrderId] { //此时修改的订单Id 数据非法  //TODO !goodOrderIdsMap[changeOrderId]
+		c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "data invalid", "订单id数据非法")) //TODO return
 	}
 
-	//查询出此订单
-	goodOrder, err := model.SelectOrderByIdAndFlag(database.DB, changeOrderId, "1")
-	if err != nil {
-		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "order invalid", "订单ID无效..."))
-	}
+	////查询出此订单
+	//goodOrder, err := model.SelectOrderByIdAndFlag(database.DB, changeOrderId, "1")
+	//if err != nil {
+	//	return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "order invalid", "订单ID无效..."))
+	//}
 	//查询出要更新的商品
 	good, err := model.SelectGoodById(database.DB, goodOrder.GoodId)
 	if err != nil {
@@ -409,9 +424,9 @@ func UpdateGoodOrder(c *fiber.Ctx) error {
 	if transactionErr != nil {
 		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, transactionErr.Error(), config.MESSAGE_TRANSACTION_ERROR))
 	}
-	resPonseData := types.UpdateGoodOrderResp{}
+	responseData := types.UpdateGoodOrderResp{}
 	//返回成功数据
-	return c.JSON(pkg.SuccessResponse(resPonseData))
+	return c.JSON(pkg.SuccessResponse(responseData))
 }
 
 // 解签名
