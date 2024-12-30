@@ -27,7 +27,7 @@ func AppSetUp(api fiber.Router) {
 	api.Post("/selectCartInfo", intcpt.AuthApp(), app.SelectCartInfo)
 
 	//updateGoodOrder 商品订单修改 TODO
-	api.Post("/updateGoodOrder", intcpt.AuthApp(), app.SelectAllGoods)
+	api.Post("/updateGoodOrder", intcpt.AuthApp(), app.UpdateGoodOrder)
 
 }
 func ManageSetUp(api fiber.Router) {

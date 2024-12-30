@@ -39,8 +39,8 @@ func (goodOrder *GoodOrder) InsertNewGoodOrder(db *gorm.DB) (id uint, err error)
 	}
 }
 
-// 查询订单，通过ID ，和购买状态
-func SelectOrderByIdAndFlag(db *gorm.DB, ids []uint, flag string) (goodOrders []GoodOrder, err error) {
+// 查询订单，通过IDs ，和购买状态
+func SelectOrderByIdsAndFlag(db *gorm.DB, ids []uint, flag string) (goodOrders []GoodOrder, err error) {
 	tx := db.Model(&GoodOrder{})
 	if flag != "" { //查询当前IDs ，未付款订单
 		err = tx.Where("id IN (?)", ids).Where("flag = ?", flag).Find(&goodOrders).Error
@@ -48,4 +48,24 @@ func SelectOrderByIdAndFlag(db *gorm.DB, ids []uint, flag string) (goodOrders []
 		err = tx.Where("id IN (?)", ids).Find(&goodOrders).Error
 	}
 	return goodOrders, err
+}
+
+// 查询订单 通过Id,和购买状态
+func SelectOrderByIdAndFlag(db *gorm.DB, id uint, flag string) (goodOrder GoodOrder, err error) {
+	tx := db.Model(&GoodOrder{})
+	if flag != "" { //查询当前IDs ，未付款订单
+		err = tx.Where("id = ?", id).Where("flag = ?", flag).First(&goodOrder).Error
+	} else { //查询当前IDs所有订单
+		err = tx.Where("id = ?", id).First(&goodOrder).Error
+	}
+	return goodOrder, err
+}
+
+// UpdateCart 更新订单数据
+func UpdateGoodOrder(db *gorm.DB, id uint, params map[string]interface{}) error {
+	err := db.Model(&GoodOrder{}).Where("id = ?", id).Updates(params).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
