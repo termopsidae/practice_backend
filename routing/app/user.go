@@ -352,8 +352,8 @@ func UpdateGoodOrder(c *fiber.Ctx) error {
 	}
 	//判断用户要修改的订单Id 是否非法
 	changeOrderId := reqParams.GoodOrderId
-	if goodOrderIdsMap[changeOrderId] { //此时修改的订单Id 数据非法  //TODO !goodOrderIdsMap[changeOrderId]
-		c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "data invalid", "订单id数据非法")) //TODO return
+	if !goodOrderIdsMap[changeOrderId] { //此时修改的订单Id 数据非法  //TODO !goodOrderIdsMap[changeOrderId]
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "data invalid", "订单id数据非法")) //TODO return
 	}
 
 	////查询出此订单
