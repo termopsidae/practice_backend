@@ -34,4 +34,10 @@ func ManageSetUp(api fiber.Router) {
 	// login 管理员登录
 	api.Post("/login", intcpt.ApiPrint(), app.Login)
 
+	//createNewGood 创建新商品 （管理员创建新商品 设置商品名 价格 数量 等）
+	api.Post("/createNewGood", intcpt.AuthManagerApp(), app.Login)
+
+	//selectGoodList 管理员查询商品列表 （管理员根据条件查询 1 商品名 2 是否可购买，3 是否有剩余 根据时间排序）
+
+	//updateGoodInfo 更新商品信息 （管理员更新现有商品信息 商品名 描述，剩余数量，价格，状态）
 }
