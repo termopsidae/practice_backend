@@ -118,3 +118,44 @@ func CreateNewGood(c *fiber.Ctx) error {
 	repParams := types.CreatNewGoodResp{}
 	return c.JSON(pkg.SuccessResponse(repParams))
 }
+
+// 根据条件查询商品
+func SelectGoodList(c *fiber.Ctx) error {
+	reqParams := types.SelectGoodListReq{}
+	err := c.BodyParser(&reqParams)
+	//if err != nil {
+	//	return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", config.MESSAGE_PARSER_ERROR))
+	//}
+	managerId := c.Locals(config.LOCAL_MANAGERID_INT64).(int64)
+	currentManager, err := model.SelectManagerById(database.DB, uint(managerId))
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "services exception", config.MESSAGE_GET_TRANSACTION_ERROR))
+	}
+	//对管理员是否有操作商品权限进行判断 Class 为 "1" 表示有权限  "2" 表示无权限
+	if currentManager.Class != "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "no permissions", "你没有操作权限!"))
+	}
+	//根据参数 查出商品 并更具时间排序
+	goods, err := model.SelectGoodsByCondition(database.DB, reqParams)
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "select fail", config.MESSAGE_GET_TRANSACTION_ERROR))
+	}
+	//开始组装数据
+	typeGoods := make([]types.TypeGood, 0)
+	for _, good := range goods {
+		typeGood := types.TypeGood{
+			GoodName:    good.Name,
+			Price:       good.Price,
+			LastAmount:  good.LastAmount,
+			Description: good.Description,
+			Flag:        good.Flag,
+		}
+		typeGoods = append(typeGoods, typeGood)
+	}
+	//开始组装返回数据
+	repData := types.SelectGoodListResp{
+		GoodsList: typeGoods,
+	}
+	//返回成功数据
+	return c.JSON(pkg.SuccessResponse(repData))
+}

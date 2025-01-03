@@ -2,6 +2,7 @@ package model
 
 import (
 	"gorm.io/gorm"
+	"paractice/routing/types"
 )
 
 // Good struct
@@ -32,8 +33,8 @@ func (g *Good) InsertNewGood(db *gorm.DB) (id uint, err error) {
 // SelectAllGoods 查询所有
 func SelectAllGoods(db *gorm.DB, flag string) (us []Good, err error) {
 	tx := db.Model(&Good{})
-	if flag != "1" {
-		if err := tx.Where("flag = ?", "0").Order("created_at desc").Find(&us).Error; err != nil {
+	if flag == "" {
+		if err := tx.Order("created_at desc").Find(&us).Error; err != nil {
 			return nil, err
 		}
 	} else {
@@ -49,4 +50,26 @@ func SelectAllGoods(db *gorm.DB, flag string) (us []Good, err error) {
 func SelectGoodById(db *gorm.DB, id uint) (good Good, err error) {
 	err = db.Model(&good).Where("id = ?", id).First(&good).Error
 	return
+}
+
+// SelectGoodsByCondition //查询商品通过条件,升序排序
+func SelectGoodsByCondition(db *gorm.DB, selectGoodListReq types.SelectGoodListReq) (goods []Good, err error) {
+	tx := db.Model(&Good{})
+	if selectGoodListReq.SelectCondition == 1 { //按商品名称查询
+		err = tx.Where("name = ?", selectGoodListReq.SelectValue).Order("created_at desc").Find(&goods).Error
+		return goods, err
+	} else if selectGoodListReq.SelectCondition == 2 { //是否可购买
+		err = tx.Where("flag = ?", selectGoodListReq.SelectValue).Order("created_at desc").Find(&goods).Error
+		return goods, err
+	} else if selectGoodListReq.SelectCondition == 3 { //是否剩余
+		if selectGoodListReq.SelectValue == "1" { //表示查商品数量为零的 商品
+			err = tx.Where("last_amount = ?", 0).Order("created_at desc").Find(&goods).Error
+			return goods, err
+		} else { //表示查商品数量不为零的商品,表还有剩余的商品
+			err = tx.Where("last_amount != ?", 0).Order("created_at desc").Find(&goods).Error
+			return goods, err
+		}
+	} else {
+		return SelectAllGoods(db, "")
+	}
 }
