@@ -73,3 +73,12 @@ func SelectGoodsByCondition(db *gorm.DB, selectGoodListReq types.SelectGoodListR
 		return SelectAllGoods(db, "")
 	}
 }
+
+// UpdateGoodById 更新商品通过Id
+func UpdateGoodById(db *gorm.DB, goodId uint, params map[string]interface{}) error {
+	err := db.Model(&Good{}).Where("id = ?", goodId).Updates(params).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -30,9 +30,23 @@ type SelectGoodListResp struct {
 	GoodsList []TypeGood `json:"goods_list"`
 }
 type TypeGood struct {
+	GoodId      uint    `json:"good_id"`
 	GoodName    string  `json:"good_name"`   //商品名
 	Price       float64 `json:"price"`       //商品价格
 	LastAmount  int64   `json:"last_amount"` //商品数量
 	Description string  `json:"description"` //商品描述
 	Flag        string  `json:"flag"`        //商品售卖状态  1 销售中. 2暂停销售
+}
+
+// 管理员更新商品参数
+type UpdateGoodInfoReq struct {
+	GoodId      uint    `json:"good_id"`
+	GoodName    string  `json:"good_name"`   //商品名
+	GoodPrice   float64 `json:"good_price"`  //商品价格
+	LastAmount  int64   `json:"last_amount"` //商品数量
+	Description string  `json:"description"` //商品描述
+	Flag        string  `json:"flag"`        //商品售卖状态  1 销售中. 2暂停销售
+}
+
+type UpdateGoodInfoResp struct {
 }

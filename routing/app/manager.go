@@ -126,15 +126,15 @@ func SelectGoodList(c *fiber.Ctx) error {
 	//if err != nil {
 	//	return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", config.MESSAGE_PARSER_ERROR))
 	//}
-	managerId := c.Locals(config.LOCAL_MANAGERID_INT64).(int64)
-	currentManager, err := model.SelectManagerById(database.DB, uint(managerId))
-	if err != nil {
-		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "services exception", config.MESSAGE_GET_TRANSACTION_ERROR))
-	}
+	//managerId := c.Locals(config.LOCAL_MANAGERID_INT64).(int64)
+	//currentManager, err := model.SelectManagerById(database.DB, uint(managerId))
+	//if err != nil {
+	//	return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "services exception", config.MESSAGE_GET_TRANSACTION_ERROR))
+	//}
 	//对管理员是否有操作商品权限进行判断 Class 为 "1" 表示有权限  "2" 表示无权限
-	if currentManager.Class != "1" {
-		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "no permissions", "你没有操作权限!"))
-	}
+	//if currentManager.Class != "1" {
+	//	return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "no permissions", "你没有操作权限!"))
+	//}
 	//根据参数 查出商品 并更具时间排序
 	goods, err := model.SelectGoodsByCondition(database.DB, reqParams)
 	if err != nil {
@@ -144,6 +144,7 @@ func SelectGoodList(c *fiber.Ctx) error {
 	typeGoods := make([]types.TypeGood, 0)
 	for _, good := range goods {
 		typeGood := types.TypeGood{
+			GoodId:      good.ID,
 			GoodName:    good.Name,
 			Price:       good.Price,
 			LastAmount:  good.LastAmount,
@@ -158,4 +159,54 @@ func SelectGoodList(c *fiber.Ctx) error {
 	}
 	//返回成功数据
 	return c.JSON(pkg.SuccessResponse(repData))
+}
+
+// 管理员修改商品参数
+func UpdateGoodInfo(c *fiber.Ctx) error {
+	reqParams := types.UpdateGoodInfoReq{}
+	err := c.BodyParser(&reqParams) //获得传进来的请求参数名称
+	if err != nil {                 // 说明传入参数格式不正确
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "parser error", config.MESSAGE_PARSER_ERROR))
+	}
+	if reqParams.GoodId == 0 {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "please upload good_id", "商品ID错误"))
+	}
+	//获取获取当前登录管理人员
+
+	managerId := c.Locals(config.LOCAL_MANAGERID_INT64).(int64)
+	currentManager, err := model.SelectManagerById(database.DB, uint(managerId))
+	if err != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "services exception", config.MESSAGE_GET_TRANSACTION_ERROR))
+	}
+	//对管理员是否有操作商品权限进行判断 Class 为 "1" 表示有权限  "2" 表示无权限
+	if currentManager.Class != "1" {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "no permissions", "你没有操作权限!"))
+	}
+	updateParams := make(map[string]interface{})
+	if reqParams.GoodName != "" {
+		updateParams["name"] = reqParams.GoodName
+	}
+	if reqParams.GoodPrice != 0 {
+		updateParams["price"] = reqParams.GoodPrice
+	}
+	if reqParams.LastAmount != 0 {
+		updateParams["last_amount"] = reqParams.LastAmount
+	}
+	if reqParams.Description != "" {
+		updateParams["description"] = reqParams.Description
+	}
+	if reqParams.Flag != "" {
+		updateParams["flag"] = reqParams.Flag
+	}
+	transactionError := database.DB.Transaction(func(tx *gorm.DB) error {
+		model.UpdateGoodById(tx, reqParams.GoodId, updateParams)
+		return nil
+	})
+	if transactionError != nil {
+		return c.JSON(pkg.MessageResponse(config.MESSAGE_FAIL, "services exception", config.MESSAGE_GET_TRANSACTION_ERROR))
+	}
+
+	//更新完后，返回成功响应
+	respData := types.UpdateGoodInfoResp{}
+	return c.JSON(pkg.SuccessResponse(respData))
 }

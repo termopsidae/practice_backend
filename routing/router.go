@@ -41,4 +41,5 @@ func ManageSetUp(api fiber.Router) {
 	api.Post("/selectGoodList", intcpt.AuthManagerApp(), app.SelectGoodList)
 
 	//updateGoodInfo 更新商品信息 （管理员更新现有商品信息 商品名 描述，剩余数量，价格，状态）
+	api.Post("/updateGoodInfo", intcpt.AuthManagerApp(), app.UpdateGoodInfo)
 }
