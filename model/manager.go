@@ -43,6 +43,12 @@ func SelectAllManager(db *gorm.DB, class string) (ps []Manager, err error) {
 	return ps, nil
 }
 
+// SelectManagerById 查询管理员通过ID
+func SelectManagerById(db *gorm.DB, managerId uint) (manager Manager, err error) {
+	err = db.Model(&manager).Where("id = ?", managerId).First(&manager).Error
+	return manager, err
+}
+
 // SelectAllManagerID SelectAllManager 查询所有管理员ID
 func SelectAllManagerID(db *gorm.DB) (ps []uint, err error) {
 	ps = make([]uint, 0)
